@@ -1,18 +1,9 @@
 {
     "backup_groups": [
         {
-            "name": "Cart\u00c3\u00b5es Fotos & Flashes",
-            "source_directories": [
-                "I:\\Cart\u00c3\u00b5es fotos&flashes"
-            ],
-            "backup_destination": "L:/DoBackupNow/Cartoes",
-            "incremental": false,
-            "active": false
-        },
-        {
             "name": "Material Postagem",
             "source_directories": [
-                "H:\\Material para postagem(\u00c3\u00a1lbum debutante ensaio)",
+                "H:\\Material para postagem(álbum debutante ensaio)",
                 "I:\\Material para postagens foto filmagem"
             ],
             "backup_destination": "L:/DoBackupNow/Material",
@@ -22,11 +13,18 @@
         {
             "name": "CartoesFotos&Flashes",
             "source_directories": [
-                "I:/Cart\u00f5es fotos&flashes"
+                "I:/Cartões fotos&flashes"
             ],
             "backup_destination": "L:/DoBackupNow2",
             "incremental": true,
             "active": true
+        },
+        {
+            "name": "Festa Infantil",
+            "source_directories": [],
+            "backup_destination": "",
+            "incremental": false,
+            "active": false
         }
     ]
 }

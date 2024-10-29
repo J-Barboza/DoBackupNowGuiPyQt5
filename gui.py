@@ -38,11 +38,12 @@ class BackupApp(QWidget):
 
         self.group_name_label = QLabel('Group Name:')
         layout.addWidget(self.group_name_label)
-        self.group_name_edit = QLineEdit()
-        layout.addWidget(self.group_name_edit)
+        self.group_name_entry = QLineEdit()
+        layout.addWidget(self.group_name_entry)
 
-        self.active_checkbox = QCheckBox('Active')
-        layout.addWidget(self.active_checkbox)
+        self.active_checkbutton = QCheckBox('Active')
+        self.active_checkbutton.stateChanged.connect(self.update_group_status)
+        layout.addWidget(self.active_checkbutton)
 
         self.source_label = QLabel('Source Directories:')
         layout.addWidget(self.source_label)
@@ -67,8 +68,8 @@ class BackupApp(QWidget):
         self.browse_dest_button.clicked.connect(self.browse_destination)
         layout.addWidget(self.browse_dest_button)
 
-        self.incremental_checkbox = QCheckBox('Incremental Backup')
-        layout.addWidget(self.incremental_checkbox)
+        self.incremental_checkbutton = QCheckBox('Incremental Backup')
+        layout.addWidget(self.incremental_checkbutton)
 
         self.backup_button = QPushButton('Start Backup')
         self.backup_button.clicked.connect(self.start_backup)
@@ -77,21 +78,31 @@ class BackupApp(QWidget):
         self.setLayout(layout)
 
     def add_group(self):
-        group_name = self.group_name_edit.text()
+        group_name = self.group_name_entry.text()
         if not group_name:
-            QMessageBox.warning(self, 'Error', 'Please enter a name for the group.')
+            QMessageBox.warning(self, 'Erro', 'Please enter a name for the group.')
             return
         group = {
             'name': group_name,
             'source_directories': [],
             'backup_destination': '',
-            'incremental': self.incremental_checkbox.isChecked(),
-            'active': self.active_checkbox.isChecked()
+            'incremental': self.incremental_checkbutton.isChecked(),
+            'active': self.active_checkbutton.isChecked()
         }
         self.backup_groups.append(group)
         self.group_list.addItem(group_name)
-        self.group_name_edit.clear()
+        self.group_name_entry.clear()
         self.save_settings()
+
+    def update_group_status(self):
+        if self.current_group_index is not None:
+            group = self.backup_groups[self.current_group_index]
+            group["active"] = self.active_checkbutton.isChecked()
+            group["incremental"] = self.incremental_checkbutton.isChecked()
+            group["name"] = self.group_name_entry.text()
+
+            self.save_settings()
+            print(f"Group '{group['name']}' status updated to {'active' if group['active'] else 'inactive'}.")
 
     def remove_group(self):
         selected_items = self.group_list.selectedItems()
@@ -111,12 +122,12 @@ class BackupApp(QWidget):
         index = self.group_list.row(selected_item)
         group = self.backup_groups[index]
 
-        self.group_name_edit.setText(group['name'])
-        self.active_checkbox.setChecked(group['active'])
+        self.group_name_entry.setText(group['name'])
+        self.active_checkbutton.setChecked(group['active'])
         self.source_list.clear()
         self.source_list.addItems(group['source_directories'])
         self.dest_edit.setText(group['backup_destination'])
-        self.incremental_checkbox.setChecked(group['incremental'])
+        self.incremental_checkbutton.setChecked(group['incremental'])
         self.current_group_index = index
 
     def add_source(self):
@@ -145,16 +156,30 @@ class BackupApp(QWidget):
             if self.current_group_index is not None:
                 self.backup_groups[self.current_group_index]['backup_destination'] = directory
                 self.save_settings()
-
+    
     def start_backup(self):
-        if self.current_group_index is not None:
-            group = self.backup_groups[self.current_group_index]
-            group['incremental'] = self.incremental_checkbox.isChecked()
-            group['active'] = self.active_checkbox.isChecked()
-            group['name'] = self.group_name_edit.text()
-            start_backup(group['source_directories'], group['backup_destination'], group['incremental'], group['name'], self.backup_info)
+        backups_executed = False
+
+        for group in self.backup_groups:
+            if group.get("active", True):  # Verificar se o grupo está ativo
+                backups_executed = True  # Marcar que pelo menos um backup foi executado
+                start_backup(
+                    group["source_directories"],
+                    group["backup_destination"],
+                    group["incremental"],
+                    group["name"],
+                    self.backup_info
+                )
+            else:
+                print(f"Backup for group {group['name']} is disabled.")
+
+        # Mensagem apropriada dependendo se um backup foi executado ou não
+        if backups_executed:
             QMessageBox.information(self, 'Backup', 'Backup completed successfully.')
-            self.save_settings()
+        else:
+            QMessageBox.information(self, 'Backup', 'No active backups. No backups were performed.')
+
+        self.save_settings()
 
     def load_settings(self):
         config = load_config(CONFIG_FILE)
