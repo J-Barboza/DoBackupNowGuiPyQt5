@@ -7,15 +7,24 @@
             ],
             "backup_destination": "C:/Projetos/TesteKYDS",
             "incremental": true,
+            "active": true
+        },
+        {
+            "name": "Folklore",
+            "source_directories": [
+                "E:/Games/Folklore"
+            ],
+            "backup_destination": "",
+            "incremental": true,
             "active": false
         },
         {
-            "name": "Backup LockNKey",
+            "name": "Estudo Z03",
             "source_directories": [
-                "E:/project/LockNKey"
+                "E:/Games/JogoNaveMovimento"
             ],
-            "backup_destination": "C:/Projetos/TesteKYDS",
-            "incremental": false,
+            "backup_destination": "",
+            "incremental": true,
             "active": true
         }
     ]

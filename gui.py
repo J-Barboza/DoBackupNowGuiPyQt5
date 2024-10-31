@@ -81,9 +81,6 @@ class BackupApp(QWidget):
         self.full_backup_radio.toggled.connect(self.update_group_status)
         self.incremental_backup_radio.toggled.connect(self.update_group_status)
 
-        # self.incremental_checkbutton = QCheckBox('Incremental Backup')
-        # layout.addWidget(self.incremental_checkbutton)
-
         self.backup_button = QPushButton('Start Backup')
         self.backup_button.clicked.connect(self.start_backup)
         layout.addWidget(self.backup_button)
@@ -99,7 +96,6 @@ class BackupApp(QWidget):
             'name': group_name,
             'source_directories': [],
             'backup_destination': '',
-            # 'incremental': self.incremental_checkbutton.isChecked(),
             'incremental' : self.incremental_backup_radio.isChecked(),
             'active': self.active_checkbutton.isChecked()
         }
@@ -132,6 +128,52 @@ class BackupApp(QWidget):
             del self.backup_groups[index]
         self.save_settings()
 
+    # def on_group_select(self):
+    #     selected_items = self.group_list.selectedItems()
+
+    #     if not selected_items:
+    #         return
+
+    #     selected_item = selected_items[0]
+    #     index = self.group_list.row(selected_item)
+    #     group = self.backup_groups[index]
+
+    #     self.group_name_entry.setText(group['name'])
+    #     self.active_checkbutton.setChecked(group.get('active', False))
+    #     self.source_list.clear()
+    #     self.source_list.addItems(group['source_directories'])
+    #     self.dest_edit.setText(group['backup_destination'])
+
+    #     if group.get("incremental", False):
+    #         self.incremental_backup_radio.setChecked(True)
+    #     else:
+    #         self.full_backup_radio.setChecked(True)
+
+    #     self.current_group_index = index
+
+    # def on_group_select(self):
+    #     selected_items = self.group_list.selectedItems()
+
+    #     if not selected_items:
+    #         return
+        
+    #     selected_item = selected_items[0]
+    #     index = self.group_list.row(selected_item)
+    #     group = self.backup_groups[index]
+
+    #     self.group_name_entry.setText(group['name'])
+    #     self.active_checkbutton.setChecked(group.get('active', False))
+    #     self.source_list.clear()
+    #     self.source_list.addItems(group['source_directories'])
+    #     self.dest_edit.setText(group['backup_destination'])
+
+    #     if group.get("incremental", False):
+    #         self.incremental_backup_radio.setChecked(True)
+    #     else:
+    #         self.full_backup_radio.setChecked(True)
+
+    #     self.current_group_index = index
+
     def on_group_select(self):
         selected_items = self.group_list.selectedItems()
         if not selected_items:
@@ -140,18 +182,28 @@ class BackupApp(QWidget):
         index = self.group_list.row(selected_item)
         group = self.backup_groups[index]
 
+        # Desconectar o sinal do checkbox para evitar atualização acidental
+        self.active_checkbutton.blockSignals(True)
+        
+        # Carregar os dados do grupo no formulário
         self.group_name_entry.setText(group['name'])
-        self.active_checkbutton.setChecked(group['active'])
+        self.active_checkbutton.setChecked(group.get('active', False))
         self.source_list.clear()
         self.source_list.addItems(group['source_directories'])
         self.dest_edit.setText(group['backup_destination'])
 
+        # Configurar o tipo de backup
         if group.get("incremental", False):
             self.incremental_backup_radio.setChecked(True)
         else:
             self.full_backup_radio.setChecked(True)
 
+        # Definir o índice do grupo selecionado
         self.current_group_index = index
+        
+        # Reconectar o sinal do checkbox após carregar os dados
+        self.active_checkbutton.blockSignals(False)
+
 
     def add_source(self):
         directory = QFileDialog.getExistingDirectory(self, 'Select Directory')
