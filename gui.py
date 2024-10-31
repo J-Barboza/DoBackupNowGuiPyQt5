@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QFileDialog, QListWidget, QCheckBox, QLabel, QLineEdit, QMessageBox
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QFileDialog, QListWidget, QCheckBox, QLabel, QLineEdit, QMessageBox, QButtonGroup, QRadioButton
 from backup import start_backup, load_last_backup, save_last_backup
 from config import load_config, save_config
 
@@ -68,8 +68,21 @@ class BackupApp(QWidget):
         self.browse_dest_button.clicked.connect(self.browse_destination)
         layout.addWidget(self.browse_dest_button)
 
-        self.incremental_checkbutton = QCheckBox('Incremental Backup')
-        layout.addWidget(self.incremental_checkbutton)
+        self.backup_type_var = QButtonGroup(self)
+
+        self.full_backup_radio = QRadioButton("Full Backup")
+        layout.addWidget(self.full_backup_radio)
+        self.backup_type_var.addButton(self.full_backup_radio)
+        
+        self.incremental_backup_radio = QRadioButton("Incremental Backup")
+        layout.addWidget(self.incremental_backup_radio)
+        self.backup_type_var.addButton(self.incremental_backup_radio)
+
+        self.full_backup_radio.toggled.connect(self.update_group_status)
+        self.incremental_backup_radio.toggled.connect(self.update_group_status)
+
+        # self.incremental_checkbutton = QCheckBox('Incremental Backup')
+        # layout.addWidget(self.incremental_checkbutton)
 
         self.backup_button = QPushButton('Start Backup')
         self.backup_button.clicked.connect(self.start_backup)
@@ -98,8 +111,12 @@ class BackupApp(QWidget):
         if self.current_group_index is not None:
             group = self.backup_groups[self.current_group_index]
             group["active"] = self.active_checkbutton.isChecked()
-            group["incremental"] = self.incremental_checkbutton.isChecked()
             group["name"] = self.group_name_entry.text()
+
+            if self.full_backup_radio.isChecked():
+                group["incremental"] = False
+            elif self.incremental_backup_radio.isChecked():
+                group["incremental"] = True
 
             self.save_settings()
             print(f"Group '{group['name']}' status updated to {'active' if group['active'] else 'inactive'}.")
@@ -127,7 +144,12 @@ class BackupApp(QWidget):
         self.source_list.clear()
         self.source_list.addItems(group['source_directories'])
         self.dest_edit.setText(group['backup_destination'])
-        self.incremental_checkbutton.setChecked(group['incremental'])
+
+        if group.get("incremental", False):
+            self.incremental_backup_radio.setChecked(True)
+        else:
+            self.full_backup_radio.setChecked(True)
+
         self.current_group_index = index
 
     def add_source(self):
@@ -173,7 +195,6 @@ class BackupApp(QWidget):
             else:
                 print(f"Backup for group {group['name']} is disabled.")
 
-        # Mensagem apropriada dependendo se um backup foi executado ou não
         if backups_executed:
             QMessageBox.information(self, 'Backup', 'Backup completed successfully.')
         else:

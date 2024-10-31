@@ -54,7 +54,7 @@ def create_backup(source_dirs, backup_dest, incremental, last_backup_time, group
                         files_to_backup.append(file_path)
 
     files_to_backup_str = " ".join(f'"{file}"' for file in files_to_backup)
-    command = f'"{SEVEN_ZIP_PATH}" a "{backup_path}" {files_to_backup_str}'
+    command = f'"{SEVEN_ZIP_PATH}" a -spf "{backup_path}" {files_to_backup_str}'
     try:
         subprocess.run(command, check=True, shell=True)
         log_backup(f"Successfully backed up to {backup_path} for group {group_name}")
