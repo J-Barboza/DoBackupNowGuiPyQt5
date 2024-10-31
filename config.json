@@ -7,6 +7,15 @@
             ],
             "backup_destination": "C:/Projetos/TesteKYDS",
             "incremental": true,
+            "active": false
+        },
+        {
+            "name": "Backup LockNKey",
+            "source_directories": [
+                "E:/project/LockNKey"
+            ],
+            "backup_destination": "C:/Projetos/TesteKYDS",
+            "incremental": false,
             "active": true
         }
     ]

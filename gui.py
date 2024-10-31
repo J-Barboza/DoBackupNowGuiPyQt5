@@ -99,7 +99,8 @@ class BackupApp(QWidget):
             'name': group_name,
             'source_directories': [],
             'backup_destination': '',
-            'incremental': self.incremental_checkbutton.isChecked(),
+            # 'incremental': self.incremental_checkbutton.isChecked(),
+            'incremental' : self.incremental_backup_radio.isChecked(),
             'active': self.active_checkbutton.isChecked()
         }
         self.backup_groups.append(group)
